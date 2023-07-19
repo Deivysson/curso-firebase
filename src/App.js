@@ -57,14 +57,14 @@ function App() {
 
       <label>Titulo:</label>
       <textarea type="text"
-       placeholder="Digite o titulo aqui" 
+       placeholder="Digite o titulo aqui com teste" 
        value={titulo}
        onChange={(e) => setTitulo (e.target.value) }
        />
 
       <label>Autor:</label>
       <input type="text"
-      placeholder="Autor do post aqui" 
+      placeholder="Autor do post aqui com teste" 
       value={autor}
       onChange={(e) => setAutor(e.target.value) }
       />
