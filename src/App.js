@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { db } from "./firebaseConnection";
-import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { db, auth } from "./firebaseConnection";
+import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import './app.css';
 
@@ -8,7 +9,29 @@ function App() {
     const [titulo, setTitulo] = useState('');
     const [autor, setAutor] = useState('');
     const [idPosts, setIdPosts] = useState('');
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
     const [posts, setPosts] = useState([]);
+
+
+    useEffect(() => { //Atualizar a pagina automatico.
+      async function loadPosts() {
+        const unsub = onSnapshot(collection(db, "posts"), (snapshot) => {
+           let listaPost = [];
+
+    snapshot.forEach((doc) => {
+      listaPost.push({
+        id: doc.id,
+        titulo: doc.data().titulo,
+        autor: doc.data().autor,
+      })
+      
+    })
+      setPosts(listaPost);
+        })
+      }
+      loadPosts();
+    }, [])
 
    async function handleApp(){
    /* await setDoc(doc(db, "posts", "12345"), {
@@ -101,11 +124,54 @@ async function excluirPost(id) {
   })
 }
 
+async function novoUsuario(){
+  await createUserWithEmailAndPassword(auth, email, senha )
+  .then(() => {
+    console.log("Cadastrado com sucesso!")
+    setEmail('')
+    setSenha('')
+  })
+  .catch((error) => {
+    if(error.code === 'auth/weak-password'){
+      alert('Senha muito fraca.')
+    }else if(error.code === 'auth/email-already-in-use'){
+      alert("Email ja existe!")
+    }
+  })
+}
+
   return (
     <div>
       <h1>Firebase</h1>
 
     <div className="container">
+      <h2>Usuarios</h2>
+      <label>Email</label>
+      <input 
+      value={email}
+      onChange={(e) => setEmail(e.target.value) }
+      placeholder="Digite um email"
+      /> 
+      <br />
+      <label>Senha</label>
+      <input 
+      value={senha}
+      onChange={(e) => setSenha(e.target.value)}
+      placeholder="Digite uma senha"
+      />
+
+    <button onClick={novoUsuario}>Cadastrar</button>
+
+    </div>
+
+    <br /><br />
+
+       <hr />
+
+
+
+    <div className="container">
+      <h2>Posts</h2>
 
     <label>ID do Post:</label>
     <input 
